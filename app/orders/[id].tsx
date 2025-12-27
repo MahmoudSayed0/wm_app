@@ -37,10 +37,29 @@ import { AlertTriangle } from 'lucide-react-native';
 
 import Colors from '@/constants/Colors';
 import { Button, Loading, RatingModal } from '@/components/ui';
+import { NotificationSheet, SupportSheet } from '@/components/shared';
 import { useRealtimeOrder, useRealtimeLocation } from '@/hooks';
 import { getOrder, cancelOrder } from '@/lib/api/orders';
 import { useAuthStore } from '@/stores';
 import type { OrderWithRelations, CountryCode } from '@/types';
+import { Bell, Headphones } from 'lucide-react-native';
+
+// Nice shadow style like Next.js
+const cardShadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  elevation: 3,
+};
+
+const headerShadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.05,
+  shadowRadius: 4,
+  elevation: 2,
+};
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -118,6 +137,32 @@ export default function OrderDetailsScreen() {
   const [isCancelling, setIsCancelling] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [hasShownRatingPrompt, setHasShownRatingPrompt] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+
+  // Demo notifications
+  const [notifications, setNotifications] = useState([
+    {
+      id: '1',
+      type: 'washer_on_way' as const,
+      titleEn: 'Washer On The Way',
+      titleAr: 'الغاسل في الطريق',
+      messageEn: 'Ahmed is heading to your location. ETA: 10 minutes.',
+      messageAr: 'أحمد في طريقه إليك. الوصول خلال 10 دقائق.',
+      read: false,
+      createdAt: new Date(Date.now() - 5 * 60 * 1000),
+    },
+    {
+      id: '2',
+      type: 'booking_confirmed' as const,
+      titleEn: 'Booking Confirmed',
+      titleAr: 'تم تأكيد الحجز',
+      messageEn: 'Your car wash has been confirmed for today.',
+      messageAr: 'تم تأكيد غسيل سيارتك لليوم.',
+      read: true,
+      createdAt: new Date(Date.now() - 30 * 60 * 1000),
+    },
+  ]);
 
   // Real-time order tracking hooks
   const {
@@ -341,25 +386,60 @@ export default function OrderDetailsScreen() {
     : 'Not scheduled';
   const formattedTime = order.scheduled_time || '';
 
+  // Notification handlers
+  const handleMarkAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const handleMarkAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <View className="bg-white/80 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700">
-        <View className="flex-row items-center justify-between px-4 h-16">
+      {/* Header - Next.js style */}
+      <View
+        className="bg-white dark:bg-gray-800 px-4 py-3"
+        style={headerShadow}
+      >
+        <View className="flex-row items-center justify-between">
+          {/* Left - Support Button */}
           <TouchableOpacity
-            onPress={() => router.back()}
-            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
+            onPress={() => setShowSupport(true)}
+            className="w-11 h-11 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 items-center justify-center"
+            style={cardShadow}
+            activeOpacity={0.7}
           >
-            <ArrowLeft size={20} color="#6B7280" />
+            <Headphones size={20} color="#6B7280" />
           </TouchableOpacity>
-          <Text className="font-bold text-gray-900 dark:text-white text-sm">
-            Order #{order.order_number?.split('-').pop() || orderId.slice(0, 6)}
-          </Text>
+
+          {/* Center - Order Number */}
+          <View className="items-center">
+            <Text className="text-xs text-gray-400 dark:text-gray-500">Order</Text>
+            <Text className="font-bold text-gray-900 dark:text-white">
+              #{order.order_number?.split('-').pop() || orderId.slice(0, 6)}
+            </Text>
+          </View>
+
+          {/* Right - Notification Button */}
           <TouchableOpacity
-            onPress={onRefresh}
-            className="w-10 h-10 items-center justify-center"
+            onPress={() => setShowNotifications(true)}
+            className="w-11 h-11 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 items-center justify-center relative"
+            style={cardShadow}
+            activeOpacity={0.7}
           >
-            <RefreshCw size={18} color={refreshing ? '#9CA3AF' : Colors.primary} />
+            <Bell size={20} color="#6B7280" />
+            {unreadCount > 0 && (
+              <View className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 items-center justify-center">
+                <Text className="text-[10px] font-bold text-white">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -379,7 +459,8 @@ export default function OrderDetailsScreen() {
         {/* Map Card */}
         <Animated.View
           entering={FadeInDown.delay(100)}
-          className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700"
+          className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700"
+          style={cardShadow}
         >
           {/* Map Container */}
           <View className="h-52 relative">
@@ -484,7 +565,8 @@ export default function OrderDetailsScreen() {
         {/* Progress Steps */}
         <Animated.View
           entering={FadeInDown.delay(200)}
-          className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700"
+          className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700"
+          style={cardShadow}
         >
           <View className="flex-row items-center justify-between mb-4">
             <Text className="font-bold text-gray-900 dark:text-white">
@@ -850,8 +932,12 @@ export default function OrderDetailsScreen() {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity className="py-3 rounded-xl bg-gray-100 dark:bg-gray-800 flex-row items-center justify-center gap-2">
-            <Phone size={16} color="#6B7280" />
+          <TouchableOpacity
+            onPress={() => setShowSupport(true)}
+            className="py-3 rounded-xl bg-gray-100 dark:bg-gray-800 flex-row items-center justify-center gap-2"
+            activeOpacity={0.7}
+          >
+            <Headphones size={16} color="#6B7280" />
             <Text className="text-gray-600 dark:text-gray-400 font-medium text-sm">
               Contact Support
             </Text>
@@ -866,6 +952,25 @@ export default function OrderDetailsScreen() {
         washerName={order?.washer ? (order.washer as any).full_name : undefined}
         onClose={() => setShowRatingModal(false)}
         onSuccess={handleRatingSuccess}
+      />
+
+      {/* Notification Sheet */}
+      <NotificationSheet
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        notifications={notifications}
+        onMarkAsRead={handleMarkAsRead}
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onNotificationPress={(notification) => {
+          setShowNotifications(false);
+          // Could navigate to relevant order if needed
+        }}
+      />
+
+      {/* Support Sheet */}
+      <SupportSheet
+        visible={showSupport}
+        onClose={() => setShowSupport(false)}
       />
     </SafeAreaView>
   );
