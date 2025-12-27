@@ -15,11 +15,14 @@ import {
   Calendar,
   Plus,
   Star,
+  Bell,
+  Headphones,
 } from 'lucide-react-native';
 import { format, parseISO } from 'date-fns';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { Card, CardPressable, Button, Badge } from '@/components/ui';
+import { Card, CardPressable, Button, Badge, Logo } from '@/components/ui';
+import { NotificationSheet, SupportSheet } from '@/components/shared';
 import { useAuthStore } from '@/stores';
 import Colors from '@/constants/Colors';
 import { getOrders, getActiveOrders } from '@/lib/api/orders';
@@ -27,6 +30,23 @@ import { getVehicles } from '@/lib/api/vehicles';
 import { getLocations } from '@/lib/api/locations';
 import { useAuth } from '@/hooks';
 import type { OrderWithRelations, Vehicle, Location as LocationType } from '@/types';
+
+// Nice shadow style like Next.js
+const cardShadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  elevation: 3,
+};
+
+const headerShadow = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.05,
+  shadowRadius: 4,
+  elevation: 2,
+};
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -49,7 +69,6 @@ const SERVICE_IMAGE = 'https://images.unsplash.com/photo-1601362840469-51e4d8d58
 export default function HomeScreen() {
   const { profile, detectedCountry } = useAuthStore();
   const { isAuthenticated } = useAuth();
-  const firstName = profile?.full_name?.split(' ')[0] || 'Guest';
   const currency = detectedCountry === 'AE' ? 'AED' : 'EGP';
 
   const [activeOrders, setActiveOrders] = useState<OrderWithRelations[]>([]);
@@ -59,14 +78,45 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [heroImageIndex] = useState(Math.floor(Math.random() * HERO_IMAGES.length));
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
 
-  // Get greeting based on time
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+  // Demo notifications
+  const [notifications, setNotifications] = useState([
+    {
+      id: '1',
+      type: 'washer_on_way' as const,
+      titleEn: 'Washer On The Way',
+      titleAr: 'الغاسل في الطريق',
+      messageEn: 'Ahmed is heading to your location. ETA: 10 minutes.',
+      messageAr: 'أحمد في طريقه إليك. الوصول خلال 10 دقائق.',
+      read: false,
+      createdAt: new Date(Date.now() - 5 * 60 * 1000),
+    },
+    {
+      id: '2',
+      type: 'booking_confirmed' as const,
+      titleEn: 'Booking Confirmed',
+      titleAr: 'تم تأكيد الحجز',
+      messageEn: 'Your car wash has been confirmed for today.',
+      messageAr: 'تم تأكيد غسيل سيارتك لليوم.',
+      read: true,
+      createdAt: new Date(Date.now() - 30 * 60 * 1000),
+    },
+  ]);
+
+  // Notification handlers
+  const handleMarkAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
   };
+
+  const handleMarkAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const loadData = useCallback(async () => {
     if (!isAuthenticated) {
@@ -123,33 +173,67 @@ export default function HomeScreen() {
         }
       >
         {/* Header */}
-        <View className="px-4 pt-4 pb-4">
-          <View className="flex-row items-start justify-between">
-            <View>
-              <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                {getGreeting()}
-              </Text>
-              <Text className="text-2xl font-bold text-gray-900 dark:text-white">
-                {firstName} 👋
-              </Text>
-            </View>
-
-            {/* Location Selector */}
+        <View
+          className="bg-white dark:bg-gray-800 px-4 pt-4 pb-3"
+          style={headerShadow}
+        >
+          <View className="flex-row items-center justify-between">
+            {/* Support Button */}
             <TouchableOpacity
-              onPress={() => router.push('/locations')}
-              className="flex-row items-center bg-white dark:bg-gray-800 px-3 py-2 rounded-full shadow-sm border border-gray-100 dark:border-gray-700"
+              onPress={() => setShowSupport(true)}
+              activeOpacity={0.7}
+              className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
             >
-              <MapPin size={14} color={Colors.primary} />
-              <Text
-                className="text-gray-700 dark:text-gray-300 text-sm font-medium mx-2 max-w-[80px]"
-                numberOfLines={1}
-              >
-                {defaultLocation?.label || 'Add Location'}
-              </Text>
-              <ChevronDown size={14} color="#9CA3AF" />
+              <Headphones size={20} color="#6B7280" />
+            </TouchableOpacity>
+
+            {/* Logo */}
+            <Logo width={100} />
+
+            {/* Notification Button */}
+            <TouchableOpacity
+              onPress={() => setShowNotifications(true)}
+              activeOpacity={0.7}
+              className="relative h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
+            >
+              <Bell size={20} color="#6B7280" />
+              {unreadCount > 0 && (
+                <View className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-red-500 items-center justify-center px-1">
+                  <Text className="text-white text-[10px] font-bold">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Location Selector */}
+        <TouchableOpacity
+          onPress={() => router.push('/locations')}
+          activeOpacity={0.7}
+          className="mx-4 mt-4 mb-2"
+        >
+          <View
+            className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700"
+            style={cardShadow}
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="h-10 w-10 rounded-xl bg-primary/10 items-center justify-center">
+                <MapPin size={20} color={Colors.primary} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                  Service Location
+                </Text>
+                <Text className="font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
+                  {defaultLocation?.label || 'Add a Location'}
+                </Text>
+              </View>
+              <ChevronDown size={20} color="#9CA3AF" />
+            </View>
+          </View>
+        </TouchableOpacity>
 
         {/* Hero Card with Image */}
         <Animated.View entering={FadeInDown.delay(100)} className="px-4 mb-6">
@@ -490,6 +574,20 @@ export default function HomeScreen() {
           )}
         </Animated.View>
       </ScrollView>
+
+      {/* Bottom Sheets */}
+      <NotificationSheet
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        notifications={notifications}
+        onMarkAsRead={handleMarkAsRead}
+        onMarkAllAsRead={handleMarkAllAsRead}
+      />
+
+      <SupportSheet
+        visible={showSupport}
+        onClose={() => setShowSupport(false)}
+      />
     </SafeAreaView>
   );
 }
