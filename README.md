@@ -1,6 +1,12 @@
 <div align="center">
 
-# 🚗 Washman
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/images/wm.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./assets/images/wm.svg">
+  <img alt="Washman Logo" src="./assets/images/wm.svg" width="280">
+</picture>
+
+<br><br>
 
 ### Premium On-Demand Car Wash & Detailing Services
 
@@ -72,7 +78,7 @@ Washman reimagines car care for the modern world:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                                                             │
-│   📱 Open App  →  🚗 Select Car  →  📍 Set Location        │
+│   📱 Open App  →  🅦 Select Car  →  📍 Set Location        │
 │                                                             │
 │   📅 Pick Time  →  💳 Pay  →  ✨ Car Washed!               │
 │                                                             │
@@ -659,7 +665,9 @@ Built with ❤️ by the **Washman Team**
 
 <div align="center">
 
-**🚗 Washman — Your car deserves the best, wherever you are.**
+<img src="./assets/images/wm.svg" alt="Washman" width="120">
+
+**Your car deserves the best, wherever you are.**
 
 [Website](https://washman.app) • [Support](mailto:support@washman.app) • [Twitter](https://twitter.com/washmanapp)
 
