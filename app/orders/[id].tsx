@@ -15,7 +15,6 @@ import {
   MapPin,
   Clock,
   Car,
-  MessageCircle,
   Star,
   Navigation,
   X,
@@ -607,11 +606,6 @@ export default function OrderDetailsScreen() {
                   </View>
                 )}
               </View>
-
-              {/* Message Button */}
-              <TouchableOpacity className="w-11 h-11 rounded-full bg-white/20 items-center justify-center">
-                <MessageCircle size={20} color="white" />
-              </TouchableOpacity>
             </View>
           </Animated.View>
         )}
