@@ -1,0 +1,148 @@
+{
+  "name": "Washman 3D Soft Morphism Style",
+  "version": "1.0.0",
+  "description": "AI prompt templates for generating Washman UI design style",
+
+  "masterPrompt": {
+    "en": "Design a premium mobile app UI screen with modern 3D soft morphism style. Soft, elevated 3D elements with subtle depth. Gradient buttons (teal #1F8783 to dark teal #12504E). Light cream/off-white background (#FCFCFC). Smooth rounded corners (pill-shaped buttons, 12-16px cards). Soft drop shadows with slight blur. Clean minimalist layout with generous white space. Glassmorphism touches on cards. Floating UI elements with layered depth effect. Premium luxury feel, similar to high-end fintech apps. iOS-style design language with soft UI elements. Neumorphic input fields with inset subtle shadows. Gradient text for accent elements.",
+    "ar": "تصميم واجهة تطبيق موبايل فاخر بأسلوب 3D Soft Morphism الحديث. عناصر ثلاثية الأبعاد ناعمة مع عمق خفيف. أزرار متدرجة (أزرق مخضر #1F8783 إلى أزرق مخضر داكن #12504E). خلفية كريمية فاتحة (#FCFCFC). زوايا دائرية ناعمة. ظلال خفيفة وناعمة. تصميم نظيف وبسيط."
+  },
+
+  "shortPrompt": "Premium mobile UI, 3D soft morphism, teal gradient buttons (#1F8783 to #12504E), off-white background, soft shadows, rounded corners, glassmorphism cards, neumorphic inputs, clean minimalist, iOS style, luxury fintech aesthetic",
+
+  "keywords": [
+    "3D Soft UI",
+    "Soft Morphism",
+    "Neumorphism",
+    "Glassmorphism",
+    "Soft Shadows",
+    "Gradient Buttons",
+    "Rounded Corners",
+    "Premium Mobile UI",
+    "iOS Design",
+    "Teal Accent",
+    "Off-white Background",
+    "Floating Cards",
+    "Layered Depth",
+    "Clean Typography",
+    "Minimalist Layout",
+    "Touch-friendly",
+    "Pill Buttons",
+    "Elevated Minimalism",
+    "Premium Mobile Design",
+    "iOS 17 Design Language"
+  ],
+
+  "styleCharacteristics": {
+    "depth": "Soft, elevated 3D elements with subtle layered depth",
+    "shadows": "Soft drop shadows with blur, not harsh",
+    "corners": "Smooth rounded corners (70px pill buttons, 12-16px cards)",
+    "layout": "Clean minimalist with generous white space",
+    "feel": "Premium, luxury, trustworthy, modern, approachable"
+  },
+
+  "colorPalette": {
+    "primary": {
+      "gradient": ["#1F8783", "#12504E"],
+      "direction": "horizontal"
+    },
+    "background": "#FCFCFC",
+    "surface": "#FFFFFF",
+    "text": {
+      "primary": "#090909",
+      "secondary": "#1A1A1A",
+      "muted": "#6B7280",
+      "placeholder": "#9CA3AF"
+    },
+    "input": {
+      "background": "#F9FAFB",
+      "backgroundAlt": "#F2F2F2"
+    },
+    "status": {
+      "success": "#22C55E",
+      "error": "#DC2626"
+    }
+  },
+
+  "componentPrompts": {
+    "button": {
+      "primary": "Pill-shaped gradient button, teal (#1F8783) to dark teal (#12504E) horizontal gradient, soft drop shadow (8px blur, 30% opacity), white text, 16px vertical padding, 70px border radius, elevated 3D effect, premium mobile UI",
+      "disabled": "Pill-shaped button, gray gradient (#BBBBBB to #999999), no shadow, muted appearance, 70px border radius"
+    },
+    "input": {
+      "text": "Neumorphic text input, light gray background (#F9FAFB), 12px rounded corners, 2px border (#E5E7EB), subtle inset effect, placeholder text gray (#9CA3AF), teal border on focus (#1F8783)",
+      "otp": "6 digit OTP input, each box 45x45px, 8px rounded corners, gray background (#F2F2F2), gradient text for entered digits, soft minimal design, auto-focus next on input",
+      "licensePlate": "Dashed border input (2px dashed #D1D5DB), 12px rounded corners, monospace font, letter-spacing 4px, centered text, teal dashed border when filled"
+    },
+    "card": {
+      "default": "Floating card, white background, 16px rounded corners, soft shadow (4px blur), subtle depth, clean minimal content",
+      "preview": "Preview card, teal tinted background (10% opacity), 16px rounded corners, icon on left, content right, no shadow",
+      "glass": "Glassmorphism card, semi-transparent white, blur backdrop, thin border, floating effect"
+    },
+    "bottomSheet": {
+      "default": "iOS-style bottom sheet, 24px top rounded corners, white background, centered drag handle (40px wide, gray #D1D5DB), semi-transparent backdrop overlay"
+    },
+    "colorPicker": {
+      "default": "Circular color swatches, 44px diameter, thin 2px border, centered grid layout, checkmark icon on selected (white for dark colors, gray for light), soft shadow on selected item"
+    },
+    "badge": {
+      "gradient": "Pill badge, teal gradient background, white text, 6px vertical padding, 13px horizontal padding, 32px border radius",
+      "chip": "Selectable chip, gray background (#F3F4F6) default, teal background when selected, 10px vertical padding, 20px border radius"
+    },
+    "progressDots": {
+      "default": "Horizontal progress indicator, pill-shaped active dot (24x6px), circular inactive dots (6x6px), teal color (#1F8783), 8px gap between dots"
+    }
+  },
+
+  "animationStyle": {
+    "entry": "Fade in with slight upward slide (FadeInDown)",
+    "duration": "300-500ms",
+    "easing": "ease-out",
+    "stagger": "100ms delay between elements",
+    "success": "Fade in with scale, green checkmark circle"
+  },
+
+  "typography": {
+    "family": "Clean sans-serif (SF Pro, Inter, Roboto)",
+    "headings": "Bold weight (700), 24-26px",
+    "body": "Regular weight (400), 14-16px",
+    "buttons": "Medium weight (500), 14-18px",
+    "captions": "Light weight (300-400), 11-12px"
+  },
+
+  "referenceApps": [
+    "Revolut",
+    "Wise",
+    "Careem",
+    "Uber Premium",
+    "Tesla App",
+    "Apple Wallet",
+    "N26",
+    "Monzo"
+  ],
+
+  "designMovements": [
+    "Soft UI / Soft Morphism",
+    "Neumorphism 2.0",
+    "Glassmorphism",
+    "3D Flat Design",
+    "Elevated Minimalism",
+    "Premium Mobile Design",
+    "iOS 17 Design Language"
+  ],
+
+  "doNotUse": [
+    "Harsh shadows with no blur",
+    "Pure black (#000000) backgrounds",
+    "Sharp corners on buttons",
+    "Flat design without any depth",
+    "Busy cluttered layouts",
+    "Small touch targets (less than 44px)",
+    "High contrast neon colors",
+    "Skeuomorphic realistic textures"
+  ],
+
+  "midjourneyPrompt": "/imagine prompt: Premium mobile app UI screen, 3D soft morphism style, teal gradient buttons #1F8783 to #12504E, off-white background #FCFCFC, soft shadows, pill-shaped buttons, glassmorphism cards, neumorphic inputs, clean minimalist iOS design, luxury fintech aesthetic, Figma mockup, 4K, ultra detailed --ar 9:19 --v 6",
+
+  "dallePrompt": "A premium mobile app UI design with modern 3D soft morphism style. Features soft elevated elements with subtle depth, teal gradient buttons, off-white background, smooth rounded corners, soft drop shadows, clean minimalist layout with white space, glassmorphism card effects, floating UI elements with layered depth, premium luxury fintech aesthetic similar to Revolut or Wise apps. High quality Figma-style mockup."
+}

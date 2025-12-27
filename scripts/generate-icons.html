@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Washman Icon Generator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+    h1 { color: #1F8783; }
+    .preview {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .icon-box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .icon-box h3 { margin: 0 0 10px 0; color: #333; font-size: 14px; }
+    .icon-box p { margin: 5px 0 0 0; color: #666; font-size: 12px; }
+    canvas {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      background: #1F8783;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover { background: #186963; }
+    .instructions {
+      background: #FFF5DD;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 30px;
+    }
+    .instructions h2 { margin-top: 0; color: #1F8783; }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Washman Icon Generator</h1>
+  <p>Generate app icons with the WM logo for your Expo app.</p>
+
+  <div class="preview">
+    <div class="icon-box">
+      <h3>App Icon (1024x1024)</h3>
+      <canvas id="icon" width="1024" height="1024"></canvas>
+      <p>For iOS and Android app stores</p>
+      <button onclick="downloadIcon('icon', 'icon.png')">Download</button>
+    </div>
+
+    <div class="icon-box">
+      <h3>Adaptive Icon (1024x1024)</h3>
+      <canvas id="adaptive" width="1024" height="1024"></canvas>
+      <p>Android adaptive icon foreground</p>
+      <button onclick="downloadIcon('adaptive', 'adaptive-icon.png')">Download</button>
+    </div>
+
+    <div class="icon-box">
+      <h3>Splash Icon (200x200)</h3>
+      <canvas id="splash" width="200" height="200"></canvas>
+      <p>For splash screen</p>
+      <button onclick="downloadIcon('splash', 'splash-icon.png')">Download</button>
+    </div>
+
+    <div class="icon-box">
+      <h3>Favicon (64x64)</h3>
+      <canvas id="favicon" width="64" height="64"></canvas>
+      <p>For web browser</p>
+      <button onclick="downloadIcon('favicon', 'favicon.png')">Download</button>
+    </div>
+  </div>
+
+  <button onclick="downloadAll()">Download All Icons</button>
+
+  <div class="instructions">
+    <h2>Instructions</h2>
+    <ol>
+      <li>Download the icons you need</li>
+      <li>Replace the files in <code>assets/images/</code></li>
+      <li>Run <code>npx expo prebuild --clean</code> to regenerate native projects</li>
+    </ol>
+  </div>
+
+  <script>
+    // WM Logo path from the brand
+    const WM_PATH = new Path2D("M143.202 12.5373L143.106 19.6453C143.095 21.1328 143.733 22.6097 144.912 23.7784L176.723 55.5892H162.603L119.083 12.0804C117.532 10.7205 115.556 9.97673 113.505 9.97673H110.01V55.5892H96.4948C91.9049 55.5892 87.5062 53.8998 84.1169 50.8292L80.3876 47.0999C79.8776 46.6006 79.2082 46.4943 78.7513 46.4943C77.7845 46.4943 76.7326 47.0043 76.722 47.7693V55.5892H63.2284C58.6279 55.5892 54.2292 53.8998 50.8399 50.8292L0 0H14.1204L57.6504 43.53C58.3941 44.1781 59.2335 44.6881 60.1579 45.0387C61.146 45.4212 62.1766 45.6124 63.2284 45.6124C65.1409 45.6124 66.7665 44.4331 66.7878 43.0519L66.8834 35.997C66.8834 34.4776 66.2353 32.9689 65.024 31.747L33.2664 0H47.3974L90.9168 43.5193C92.468 44.8687 94.4442 45.6124 96.4948 45.6124H100.022V0H113.505C118.084 0 122.473 1.68935 125.873 4.73868L125.958 4.82368L129.612 8.48925C130.346 9.22236 131.525 9.22236 132.311 8.89299C132.598 8.78674 133.267 8.44675 133.278 7.81988V0H146.772C151.362 0 155.75 1.68935 159.15 4.73868L159.224 4.82368L210 55.5892H195.88L152.35 12.0804C150.798 10.7205 148.822 9.97673 146.772 9.97673C145.762 9.97673 144.795 10.2955 144.105 10.8586C143.531 11.3261 143.212 11.9211 143.202 12.5373Z");
+
+    const TEAL = '#1F8783';
+    const CREAM = '#FFF5DD';
+
+    // Original SVG dimensions
+    const SVG_WIDTH = 210;
+    const SVG_HEIGHT = 56;
+
+    function drawIcon(canvasId, size, isAdaptive = false) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+
+      // Fill background
+      ctx.fillStyle = TEAL;
+      ctx.fillRect(0, 0, size, size);
+
+      // Calculate scale to fit logo centered
+      const padding = isAdaptive ? size * 0.25 : size * 0.15; // More padding for adaptive (safe zone)
+      const availableSize = size - (padding * 2);
+      const scale = Math.min(availableSize / SVG_WIDTH, availableSize / SVG_HEIGHT);
+
+      // Center the logo
+      const offsetX = (size - SVG_WIDTH * scale) / 2;
+      const offsetY = (size - SVG_HEIGHT * scale) / 2;
+
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(scale, scale);
+
+      // Draw the WM path
+      ctx.fillStyle = CREAM;
+      ctx.fill(WM_PATH);
+
+      ctx.restore();
+    }
+
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadAll() {
+      downloadIcon('icon', 'icon.png');
+      setTimeout(() => downloadIcon('adaptive', 'adaptive-icon.png'), 100);
+      setTimeout(() => downloadIcon('splash', 'splash-icon.png'), 200);
+      setTimeout(() => downloadIcon('favicon', 'favicon.png'), 300);
+    }
+
+    // Generate all icons on load
+    window.onload = function() {
+      drawIcon('icon', 1024, false);
+      drawIcon('adaptive', 1024, true);
+      drawIcon('splash', 200, false);
+      drawIcon('favicon', 64, false);
+    };
+  </script>
+</body>
+</html>

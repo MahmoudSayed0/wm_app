@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Washman Brand Colors */
+:root {
+  --color-primary: #1F8783;
+  --color-primary-light: #2A9D99;
+  --color-brand-beige: #F9EFDB;
+  --color-background: #FCFCFC;
+  --color-foreground: #1A1A2E;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A2E;
+  --color-border: #E4E4E7;
+  --color-muted: #F4F4F5;
+  --color-muted-foreground: #71717A;
+}
+
+.dark {
+  --color-primary: #2A9D99;
+  --color-background: #1A1A2E;
+  --color-foreground: #F4F4F5;
+  --color-card: #27273A;
+  --color-card-foreground: #F4F4F5;
+  --color-border: #3F3F52;
+  --color-muted: #27273A;
+  --color-muted-foreground: #A1A1AA;
+}
