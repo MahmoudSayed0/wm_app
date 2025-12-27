@@ -29,6 +29,7 @@ import {
   X,
   Check,
   Edit3,
+  Headphones,
 } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 
@@ -37,6 +38,7 @@ import { useAuth } from '@/hooks';
 import Colors from '@/constants/Colors';
 import { t, getLocale } from '@/lib/i18n';
 import { Button } from '@/components/ui';
+import { SupportSheet } from '@/components/shared';
 import { updateProfile, getProfile } from '@/lib/api/profile';
 import { getVehicles } from '@/lib/api/vehicles';
 import { getLocations } from '@/lib/api/locations';
@@ -319,6 +321,7 @@ export default function ProfileScreen() {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showCountryModal, setShowCountryModal] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -583,6 +586,13 @@ export default function ProfileScreen() {
         {/* Support Section */}
         <MenuSection title="Support">
           <MenuItem
+            icon={<Headphones size={20} color={Colors.primary} />}
+            label="Contact Support"
+            subtitle="Call, WhatsApp, or Email"
+            onPress={() => setShowSupport(true)}
+          />
+          <MenuDivider />
+          <MenuItem
             icon={<HelpCircle size={20} color="#6B7280" />}
             label={t('profile.help')}
           />
@@ -647,6 +657,11 @@ export default function ProfileScreen() {
         onClose={() => setShowCountryModal(false)}
         currentCountry={country}
         onSelect={handleCountryChange}
+      />
+
+      <SupportSheet
+        visible={showSupport}
+        onClose={() => setShowSupport(false)}
       />
     </SafeAreaView>
   );
