@@ -26,7 +26,6 @@ import type { VehicleType } from '@/types';
 const VEHICLE_TYPES: { value: VehicleType; label: string }[] = [
   { value: 'sedan', label: 'Sedan' },
   { value: 'suv', label: 'SUV' },
-  { value: 'pickup', label: 'Pickup' },
   { value: 'luxury', label: 'Luxury' },
 ];
 
@@ -428,7 +427,7 @@ export default function AddEditVehicleScreen() {
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {VEHICLE_TYPES.map((type) => {
                     const isSelected = vehicleType === type.value;
-                    const TypeIcon = type.value === 'luxury' ? Crown : type.value === 'suv' || type.value === 'pickup' ? Truck : Car;
+                    const TypeIcon = type.value === 'luxury' ? Crown : type.value === 'suv' ? Truck : Car;
                     return (
                       <TouchableOpacity
                         key={type.value}
@@ -756,7 +755,7 @@ export default function AddEditVehicleScreen() {
                   >
                     {vehicleType === 'luxury' ? (
                       <Crown size={24} color={Colors.primary} />
-                    ) : vehicleType === 'suv' || vehicleType === 'pickup' ? (
+                    ) : vehicleType === 'suv' ? (
                       <Truck size={24} color={Colors.primary} />
                     ) : (
                       <Car size={24} color={Colors.primary} />

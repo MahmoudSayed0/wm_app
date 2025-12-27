@@ -59,7 +59,6 @@ const HERO_IMAGES = [
 const CAR_IMAGES: Record<string, string> = {
   sedan: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&q=80',
   suv: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&q=80',
-  pickup: 'https://images.unsplash.com/photo-1558383331-f520f2888351?w=400&q=80',
   luxury: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80',
 };
 
