@@ -16,13 +16,12 @@ import {
   Plus,
   Star,
   Bell,
-  Headphones,
 } from 'lucide-react-native';
 import { format, parseISO } from 'date-fns';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Card, CardPressable, Button, Badge, Logo } from '@/components/ui';
-import { NotificationSheet, SupportSheet } from '@/components/shared';
+import { NotificationSheet } from '@/components/shared';
 import { useAuthStore } from '@/stores';
 import Colors from '@/constants/Colors';
 import { getOrders, getActiveOrders } from '@/lib/api/orders';
@@ -79,7 +78,6 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [heroImageIndex] = useState(Math.floor(Math.random() * HERO_IMAGES.length));
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showSupport, setShowSupport] = useState(false);
 
   // Demo notifications
   const [notifications, setNotifications] = useState([
@@ -178,14 +176,8 @@ export default function HomeScreen() {
           style={headerShadow}
         >
           <View className="flex-row items-center justify-between">
-            {/* Support Button */}
-            <TouchableOpacity
-              onPress={() => setShowSupport(true)}
-              activeOpacity={0.7}
-              className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
-            >
-              <Headphones size={20} color="#6B7280" />
-            </TouchableOpacity>
+            {/* Placeholder for balance */}
+            <View className="w-10" />
 
             {/* Logo */}
             <Logo width={100} />
@@ -575,18 +567,13 @@ export default function HomeScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* Bottom Sheets */}
+      {/* Notification Sheet */}
       <NotificationSheet
         visible={showNotifications}
         onClose={() => setShowNotifications(false)}
         notifications={notifications}
         onMarkAsRead={handleMarkAsRead}
         onMarkAllAsRead={handleMarkAllAsRead}
-      />
-
-      <SupportSheet
-        visible={showSupport}
-        onClose={() => setShowSupport(false)}
       />
     </SafeAreaView>
   );
