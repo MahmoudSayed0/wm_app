@@ -31,8 +31,9 @@ import {
 } from 'lucide-react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInMinutes, parse, isValid } from 'date-fns';
 import Toast from 'react-native-toast-message';
+import { AlertTriangle } from 'lucide-react-native';
 
 import Colors from '@/constants/Colors';
 import { Button, Loading, RatingModal } from '@/components/ui';
@@ -53,6 +54,31 @@ const statusSteps = [
   { key: 'in_progress', label: 'In Progress', icon: Sparkles },
   { key: 'completed', label: 'Completed', icon: CheckCircle2 },
 ];
+
+// Cancellation policy constants
+const CANCELLATION_FEE = 50; // EGP
+const FREE_CANCELLATION_HOURS = 1;
+
+// Helper to check if order is within 1 hour of scheduled time
+function isWithinCancellationWindow(scheduledDate: string | null, scheduledTime: string | null): boolean {
+  if (!scheduledDate || !scheduledTime) return false;
+
+  try {
+    // Parse the scheduled date and time
+    const dateStr = scheduledDate.split('T')[0]; // Get just the date part
+    const scheduledDateTime = parse(`${dateStr} ${scheduledTime}`, 'yyyy-MM-dd HH:mm', new Date());
+
+    if (!isValid(scheduledDateTime)) return false;
+
+    const now = new Date();
+    const minutesUntilService = differenceInMinutes(scheduledDateTime, now);
+
+    // Returns true if less than 1 hour (60 minutes) until scheduled time
+    return minutesUntilService >= 0 && minutesUntilService < 60;
+  } catch {
+    return false;
+  }
+}
 
 function getStatusStyle(status: string) {
   switch (status) {
@@ -206,24 +232,40 @@ export default function OrderDetailsScreen() {
     );
   };
 
+  // Check if cancellation will incur a fee
+  const willHaveCancellationFee = isWithinCancellationWindow(
+    order?.scheduled_date || null,
+    order?.scheduled_time || null
+  );
+
   // Handle cancel order
   const handleCancelOrder = () => {
+    const title = willHaveCancellationFee ? 'Cancellation Fee Applies' : 'Cancel Order';
+    const message = willHaveCancellationFee
+      ? `Cancelling less than 1 hour before your scheduled service will incur a ${CANCELLATION_FEE} ${currency} fee. Do you want to proceed?`
+      : 'Are you sure you want to cancel this order? Free cancellation is available up to 1 hour before your scheduled service.';
+
     Alert.alert(
-      'Cancel Order',
-      'Are you sure you want to cancel this order?',
+      title,
+      message,
       [
         { text: 'No', style: 'cancel' },
         {
-          text: 'Yes, Cancel',
+          text: willHaveCancellationFee ? `Pay ${CANCELLATION_FEE} ${currency} & Cancel` : 'Yes, Cancel',
           style: 'destructive',
           onPress: async () => {
             setIsCancelling(true);
             try {
-              await cancelOrder(orderId, 'Cancelled by customer');
+              const reason = willHaveCancellationFee
+                ? `Cancelled by customer (${CANCELLATION_FEE} ${currency} fee applied)`
+                : 'Cancelled by customer';
+              await cancelOrder(orderId, reason);
               Toast.show({
                 type: 'success',
                 text1: 'Order Cancelled',
-                text2: 'Your order has been cancelled',
+                text2: willHaveCancellationFee
+                  ? `Your order has been cancelled. A ${CANCELLATION_FEE} ${currency} fee will be charged.`
+                  : 'Your order has been cancelled',
               });
               router.back();
             } catch (err: any) {
@@ -608,6 +650,56 @@ export default function OrderDetailsScreen() {
             </View>
           </View>
 
+          {/* Cancellation Policy Notice - Only show for cancellable orders */}
+          {['pending', 'confirmed', 'assigned'].includes(currentStatus) && (
+            <View
+              className={`rounded-2xl p-4 shadow-sm border ${
+                willHaveCancellationFee
+                  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                  : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+              }`}
+            >
+              <View className="flex-row items-start gap-3">
+                <View
+                  className={`w-9 h-9 rounded-xl items-center justify-center ${
+                    willHaveCancellationFee
+                      ? 'bg-red-100 dark:bg-red-900/40'
+                      : 'bg-amber-100 dark:bg-amber-900/40'
+                  }`}
+                >
+                  <AlertTriangle
+                    size={18}
+                    color={willHaveCancellationFee ? '#DC2626' : '#D97706'}
+                  />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    className={`font-semibold text-sm ${
+                      willHaveCancellationFee
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-amber-700 dark:text-amber-400'
+                    }`}
+                  >
+                    {willHaveCancellationFee
+                      ? 'Cancellation Fee Applies'
+                      : 'Cancellation Policy'}
+                  </Text>
+                  <Text
+                    className={`text-xs mt-1 leading-relaxed ${
+                      willHaveCancellationFee
+                        ? 'text-red-600 dark:text-red-300'
+                        : 'text-amber-600 dark:text-amber-300'
+                    }`}
+                  >
+                    {willHaveCancellationFee
+                      ? `Your service is scheduled within the next hour. Cancelling now will incur a ${CANCELLATION_FEE} ${currency} fee.`
+                      : `Free cancellation is available up to 1 hour before your scheduled service. A ${CANCELLATION_FEE} ${currency} fee applies for late cancellations.`}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
           {/* Notes Card */}
           {order.notes && (
             <View className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -716,11 +808,19 @@ export default function OrderDetailsScreen() {
             <TouchableOpacity
               onPress={handleCancelOrder}
               disabled={isCancelling}
-              className="py-3 rounded-xl border border-red-200 dark:border-red-800 flex-row items-center justify-center gap-2"
+              className={`py-3 rounded-xl border flex-row items-center justify-center gap-2 ${
+                willHaveCancellationFee
+                  ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
+                  : 'border-red-200 dark:border-red-800'
+              }`}
             >
               <X size={16} color="#EF4444" />
               <Text className="text-red-600 font-medium text-sm">
-                {isCancelling ? 'Cancelling...' : 'Cancel Order'}
+                {isCancelling
+                  ? 'Cancelling...'
+                  : willHaveCancellationFee
+                  ? `Cancel Order (${CANCELLATION_FEE} ${currency} fee)`
+                  : 'Cancel Order'}
               </Text>
             </TouchableOpacity>
           )}
