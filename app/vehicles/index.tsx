@@ -45,7 +45,7 @@ function VehicleCard({
   onEdit: () => void;
   loading?: boolean;
 }) {
-  const TypeIcon = vehicle.type === 'luxury' ? Crown : vehicle.type === 'suv' || vehicle.type === 'pickup' ? Truck : Car;
+  const TypeIcon = vehicle.type === 'luxury' ? Crown : vehicle.type === 'suv' ? Truck : Car;
 
   return (
     <TouchableOpacity
