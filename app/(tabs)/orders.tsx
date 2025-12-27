@@ -23,13 +23,10 @@ import {
   Sparkles,
   AlertCircle,
   Play,
-  Bell,
-  Headphones,
 } from 'lucide-react-native';
 import { format, parseISO } from 'date-fns';
 
 import { Button, Loading } from '@/components/ui';
-import { NotificationSheet, SupportSheet } from '@/components/shared';
 import Colors from '@/constants/Colors';
 import { t } from '@/lib/i18n';
 import { getOrders } from '@/lib/api/orders';
@@ -366,32 +363,6 @@ export default function OrdersScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showSupport, setShowSupport] = useState(false);
-
-  // Demo notifications
-  const [notifications, setNotifications] = useState([
-    {
-      id: '1',
-      type: 'washer_on_way' as const,
-      titleEn: 'Washer On The Way',
-      titleAr: 'الغاسل في الطريق',
-      messageEn: 'Ahmed is heading to your location. ETA: 10 minutes.',
-      messageAr: 'أحمد في طريقه إليك. الوصول خلال 10 دقائق.',
-      read: false,
-      createdAt: new Date(Date.now() - 5 * 60 * 1000),
-    },
-    {
-      id: '2',
-      type: 'booking_confirmed' as const,
-      titleEn: 'Booking Confirmed',
-      titleAr: 'تم تأكيد الحجز',
-      messageEn: 'Your car wash has been confirmed for today.',
-      messageAr: 'تم تأكيد غسيل سيارتك لليوم.',
-      read: true,
-      createdAt: new Date(Date.now() - 30 * 60 * 1000),
-    },
-  ]);
 
   const loadOrders = useCallback(async () => {
     if (!isAuthenticated) {
@@ -448,19 +419,6 @@ export default function OrdersScreen() {
 
   const displayOrders = activeTab === 'active' ? activeOrders : completedOrders;
 
-  // Notification handlers
-  const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  };
-
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -471,41 +429,11 @@ export default function OrdersScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      {/* Header - Next.js style */}
-      <View className="bg-white dark:bg-gray-800 px-4 py-3" style={headerShadow}>
-        <View className="flex-row items-center justify-between">
-          {/* Left - Support Button */}
-          <TouchableOpacity
-            onPress={() => setShowSupport(true)}
-            className="w-11 h-11 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 items-center justify-center"
-            style={cardShadow}
-            activeOpacity={0.7}
-          >
-            <Headphones size={20} color="#6B7280" />
-          </TouchableOpacity>
-
-          {/* Center - Title */}
-          <Text className="text-lg font-bold text-gray-900 dark:text-white">
-            {t('orders.title')}
-          </Text>
-
-          {/* Right - Notification Button */}
-          <TouchableOpacity
-            onPress={() => setShowNotifications(true)}
-            className="w-11 h-11 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 items-center justify-center relative"
-            style={cardShadow}
-            activeOpacity={0.7}
-          >
-            <Bell size={20} color="#6B7280" />
-            {unreadCount > 0 && (
-              <View className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 items-center justify-center">
-                <Text className="text-[10px] font-bold text-white">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+      {/* Header */}
+      <View className="bg-white dark:bg-gray-800 px-4 py-4" style={headerShadow}>
+        <Text className="text-xl font-bold text-gray-900 dark:text-white text-center">
+          {t('orders.title')}
+        </Text>
       </View>
 
       {/* Tabs */}
@@ -567,18 +495,6 @@ export default function OrdersScreen() {
           ))
         )}
       </ScrollView>
-
-      {/* Notification Sheet */}
-      <NotificationSheet
-        visible={showNotifications}
-        onClose={() => setShowNotifications(false)}
-        notifications={notifications}
-        onMarkAsRead={handleMarkAsRead}
-        onMarkAllAsRead={handleMarkAllAsRead}
-      />
-
-      {/* Support Sheet */}
-      <SupportSheet visible={showSupport} onClose={() => setShowSupport(false)} />
     </SafeAreaView>
   );
 }
